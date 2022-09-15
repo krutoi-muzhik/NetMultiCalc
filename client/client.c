@@ -1,23 +1,17 @@
 #include "client.h"
 
-double Calc (compmem_t *cmem) {
-	if (cmem->upper < cmem->lower) {
-		printf ("Invalid limits: upper should be larger than lower\n");;
-		exit (EXIT_FAILURE);
-	}
-
-
-}
-
 void ClientInit (int client_port, int nthreads) {
 	int serv_port = 0;
-
+	int sock_data;
 	struct sockaddr_in addr;
 	memset (&addr, '0', sizeof (addr));
 	soocklen_t addr_len = sizeof (addr);
 
 	Broadcast (client_port, &serv_port, &addr, &addr_len);
+	sock_data = ClientTCP (&serv_port, &addr, &addr_len);
+	ClientCalc (sock_data, nthreads);
 
+	return;
 }
 
 void Broadcast (int client_port, int *serv_port, struct sockaddr_in *addr, socklen_t *addr_len) {
@@ -60,7 +54,7 @@ bc_error:
 }
 
 
-int ClientTCP (int *serv_port, struct sockaddr_in *addr, int nthreads) {
+int ClientTCP (int *serv_port, struct sockaddr_in *addr) {
 	int err = 0;
 	int sock_data;
 	int keep_cnt = KEEPCNT;
@@ -131,7 +125,7 @@ double ClientCalc (int sock, int nthreads) {
 			recv_mem->lower, recv_mem->step);
 
 	recv_mem.nthreads = nthreads;
-	sum = Calc (&recv_mem);
+	sum = Calculate (&recv_mem);
 	printf ("subsum = %lf\n", sum);
 
 	err = send (sock, &sum, sizeof (double), MSG_NOSIGNAL);
@@ -170,7 +164,7 @@ void *Integral (void *data) {
 	return;
 }
 
-double Calc (compmem_t *comp_mem) {
+double Calculate (compmem_t *comp_mem) {
 	int err;
 	int nprocs;
 	char *thread_mem;

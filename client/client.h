@@ -31,8 +31,6 @@ typedef struct {
 
 	int ncomp;
 	int nthreads;
-
-	double (* CountFunc) (double);
 } compmem_t;
 
 typedef struct {
@@ -46,6 +44,12 @@ typedef struct {
 	pthread_t thread_id;
 } threadmem_t;
 
-double Calc (int nthreads, double lower, double upper, double step);
+void ClientInit (int client_port, int nthreads);
+void Broadcast (int client_port, int *serv_port, struct sockaddr_in *addr, socklen_t *addr_len);
+int ClientTCP (int *serv_port, struct sockaddr_in *addr, int nthreads);
+double ClientCalc (int sock, int nthreads);
+void *Integral (void *data);
+double Calculate (compmem_t *comp_mem);
+double Count (double x);
 
 #endif

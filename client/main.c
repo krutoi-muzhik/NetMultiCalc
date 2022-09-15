@@ -5,21 +5,20 @@ int main (int arhc, char **argv) {
 	int nthreads;
 	double sum;
 
-	if (argc != 3)
-		goto inval_args;
+	if (argc != 3) {
+		printf ("Usage: ./client _socket_ _num of threads_ \n");
+		exit (EXIT_FAILURE);
+	}
 
-	sscanf (argv[1], "%d", &port);
-	sscanf (argv[2], "%d", &nthreads);
-	if ((port < 1) | (nthreads < 1))
-		goto inval_args;
+	port = atoi (argv[1]);
+	nthreads = atoi (argv[2]);
 
-	sum = Calc (nthreads, -10f, 10f, 0.000001);
-	printf ("Result: \t%lf\n", sum);
+	if ((port < 1) | (nthreads < 1)) {
+		printf ("Usage: ./client _socket_ _num of threads_ \n");
+		exit (EXIT_FAILURE);
+	}
+
+	ClientInit (port, nthreads);
 
 	exit (EXIT_SUCCESS);
-
-inval_args:
-	printf ("Usage: ./client _socket_ _num of threads_ \n");
-	exit (EXIT_FAILURE);
-
 }

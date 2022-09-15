@@ -8,13 +8,12 @@ int main (int argc, char **argv) {
 	if (argc != 3)
 		goto inval_args;
 
-	sscanf (argv[1], "%d", &socket);
-	sscanf (argv[2], "%d", &ncomps);
+	port = atoi (argv[1]);
+	ncomps = atoi (argv[2]);
 
 	if ((ncomps < 1) | (socket < 1))
 		goto inval_args;
 
-	sum = GetResult (ncomps, socket, -10f, 10f, 0.000001);
 	printf ("Result: \t%lf", sum);
 
 	exit (EXIT_SUCCESS);
