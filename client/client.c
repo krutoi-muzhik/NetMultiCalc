@@ -148,6 +148,68 @@ client_calc_error:
 	exit (EXIT_FAILURE);
 }
 
-double Calc (compmem_t *comp_mem) {
+void *Integral (void *data) {
+	int err;
+	double sum;
+	cpu_set_t cpuset;
+	threadmem_t *mem = (threadmem_t *) data;
 
+	CPU_ZERO (&cpuset);
+	CPU_SET (mem->core_id, &cpuset);
+	err = pthread_setaddinity_np (mem->thread_id, sizeof (cpuset), &cpuset);
+	if (!err) {
+		printf ("Error %d in core %d\n", err, mem->core_id);
+		perror ("CPU_ALLOC");
+	}
+
+	mem->sum = 0;
+	for (double x = mem->lower; x < mem->upper; x += mem->step) {
+		mem->sum += Count (x) * mem->step;
+	}
+	
+	return;
+}
+
+double Calc (compmem_t *comp_mem) {
+	int err;
+	int nprocs;
+	char *thread_mem;
+	threadmem_t *mem;
+	int mem_size;
+	double intvl;
+	double sum;
+
+	nprocs = get_nprocs ();
+	if (comp_mem->nthreads > nprocs) 
+		comp_mem->nthreads = nprocs;
+
+	mem_size = (sizeof (threadmem_t) / PAGE_SZ + 1) * PAGE_SZ;
+	thread_mem = calloc (comp_mem->nthreads, mem_size);
+
+	thread_id = calloc (nprocs, sizeof (thread_t));
+
+	intvl = (comp_mem->upper - comp_mem->lower) / nprocs;
+	for (size_t i = 0; i < nprocs; i ++) {
+		mem = (threadmem_t *) (thread_mem + mem_size * i);
+		mem->lower = comp_mem->lower + intvl * i;
+		mem->upper = mem->lower + intvl;
+		mem->step = comp_mem->step;
+		mem->core_id = i;
+
+		err = pthread_create (&(mem->thread_id), NULL, integral, mem);
+		if (!err)
+			perror ("pthread_create id %d", i);
+	}
+
+	for (size_t i = 0; i < nprocs; i ++) {
+		mem = (threadmem_t *) (thread_mem + mem_size * i)
+		err = pthread_join (mem->thread_id, NULL);
+		sum += mem->sum;
+	}
+
+	return sum;
+}
+
+double Count (double x) {
+	return sin (cos (x)) - 5 * x * x + 10 * exp (x * x) + x;
 }

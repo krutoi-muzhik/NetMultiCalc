@@ -14,7 +14,11 @@
 #include <errno.h>
 #include <arpa/inet.h>
 
-enum Keep {
+enum SIZES {
+	PAGE_SZ = 64
+};
+
+enum KEEP {
 	KEEPCNT = 3,
 	KEEPIDLE = 2,
 	KEEPINTVL = 1
@@ -36,7 +40,10 @@ typedef struct {
 	double lower;
 	double step;
 
+	double sum;
+
 	int core_id;
+	pthread_t thread_id;
 } threadmem_t;
 
 double Calc (int nthreads, double lower, double upper, double step);
