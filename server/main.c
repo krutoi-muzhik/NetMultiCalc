@@ -14,7 +14,7 @@ int main (int argc, char **argv) {
 	if ((ncomps < 1) | (socket < 1))
 		goto inval_args;
 
-	sum = GetResult (ncomps, socket, double (*CalcFunc) (double));
+	sum = GetResult (ncomps, socket, -10f, 10f, 0.000001);
 	printf ("Result: \t%lf", sum);
 
 	exit (EXIT_SUCCESS);
