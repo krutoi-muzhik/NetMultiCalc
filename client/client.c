@@ -110,7 +110,7 @@ TCP_client_error:
 
 double ClientCalc (int sock, int nthreads) {
 	int err = 0;
-	compmem_t *recv_mem;
+	compmem_t recv_mem;
 	double sum;
 
 	err = send (sock, &nthreads, sizeof (int), MSG_NOSIGNAL);
@@ -119,33 +119,29 @@ double ClientCalc (int sock, int nthreads) {
 		goto client_calc_error;
 	}
 
-	recv_mem = calloc (1, sizeof (compmem_t));
-	err = recv (sock, recv_mem, sizeof (compmem_t));
+	memset (recv_mem, '0', sizeof (recv_mem));
+	err = recv (sock, &recv_mem, sizeof (recv_mem));
 	if (err < 0) {
 		perror ("recv compmem");
-		goto client_calc_error_free;
+		goto client_calc_error;
 	}
 
 	printf ("ncomp = %d \nupper = %lf \nlower = %lf \nstep = %lf\n", 
 			recv_mem->ncomp, recv_mem->upper, 
 			recv_mem->lower, recv_mem->step);
 
-	recv_mem->nthreads = nthreads;
-	sum = Calc (recv_mem);
+	recv_mem.nthreads = nthreads;
+	sum = Calc (&recv_mem);
 	printf ("subsum = %lf\n", sum);
 
 	err = send (sock, &sum, sizeof (double), MSG_NOSIGNAL);
 	if (err < 0) {
 		perror ("send subsum");
-		goto client_calc_error_free;
+		goto client_calc_error;
 	}
 
-	free (recv_mem);
 	close (sock);
 	return sum;
-
-client_calc_error_free:
-	free (recv_mem);
 
 client_calc_error:
 	close (sock);
