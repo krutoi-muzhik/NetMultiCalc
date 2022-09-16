@@ -1,5 +1,8 @@
 #include "server.h"
 
+#define CLIENTPORT 4901
+#define SERVERPORT 4902
+
 void ServerInit (int serv_port, int ncomps, int client_port) {
 	int err;
 	int sock_connect;
@@ -74,11 +77,11 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 	sock_data = (int *) calloc (ncomps, sizeof (int));
 	client_addr = (struct sockaddr_in *) calloc (ncomps, sizeof (struct sockaddr_in));
 
-	for (connected_clients = 0;connected_clients < ncomps; connected_clients ++) {
+	for (connected_clients = 0; connected_clients < ncomps; connected_clients ++) {
 		sock_data[connected_clients] = accept (sock_connect, NULL, NULL);
 		if (sock_data[connected_clients] < 0) {
 			if (errno == EAGAIN) {
-				printf ("got all clients");
+				printf ("Got all clients\n");
 				break;
 			} else
 				perror ("accept client");

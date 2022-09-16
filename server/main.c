@@ -1,5 +1,6 @@
 #include "server.h"
 
+
 int main (int argc, char **argv) {
 	int ncomps;
 	int serv_port;
@@ -11,8 +12,8 @@ int main (int argc, char **argv) {
 	}
 
 	serv_port = atoi (argv[1]);
-	ncomps = atoi (argv[3]);
 	client_port = atoi (argv[2]);
+	ncomps = atoi (argv[3]);
 
 	if ((ncomps < 1) | (serv_port < 1)) {
 		printf ("Usage: ./server _server port_ _client port_ _num of computers_ \n");

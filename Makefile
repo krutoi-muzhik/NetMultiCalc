@@ -25,4 +25,8 @@ server/main.o: server/main.c server/server.h
 client/main.o: client/main.c client/client.h
 	$(CC) $< $(CLIENT_LIBS) $(CFLAGS) -c -o $@
 
+clean:
+	rm -f $(CLIENT_OBJS)
+	rm -f $(SERVER_OBJS)
+
 -include *.d
