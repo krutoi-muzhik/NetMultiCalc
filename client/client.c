@@ -26,6 +26,8 @@ void CatchBroadcast (int client_port, int *serv_port, struct sockaddr_in *addr, 
 		goto bc_error;
 	}
 
+	printf ("client_port = %d\n", client_port);
+
 	memset (&local_addr, '0', sizeof (local_addr));
 	local_addr.sin_family = AF_INET;
 	local_addr.sin_port = htons (client_port);
@@ -37,6 +39,10 @@ void CatchBroadcast (int client_port, int *serv_port, struct sockaddr_in *addr, 
 		goto bc_error;
 	}
 
+	err = bind (bcsock, (struct sockaddr *) &local_addr, sizeof (local_addr));
+	if (err < 0)
+		perror ("bind bcsock");
+
 	printf ("waiting for server\n");
 
 	err = recvfrom (bcsock, serv_port, sizeof (int), 0, (struct sockaddr*) addr, addr_len);
@@ -45,12 +51,9 @@ void CatchBroadcast (int client_port, int *serv_port, struct sockaddr_in *addr, 
 		goto bc_error;
 	}
 
-	close (bcsock);
-	return;
-
 bc_error:
 	close (bcsock);
-	exit (EXIT_FAILURE);
+	return;
 }
 
 
@@ -175,6 +178,8 @@ double Calculate (compmem_t *comp_mem) {
 	nprocs = get_nprocs ();
 	if (comp_mem->nthreads > nprocs) 
 		comp_mem->nthreads = nprocs;
+	else
+		nprocs = comp_mem->nthreads;
 
 	mem_size = (sizeof (threadmem_t) / PAGE_SZ + 1) * PAGE_SZ;
 	thread_mem = (char*) calloc (comp_mem->nthreads, mem_size);
@@ -183,6 +188,7 @@ double Calculate (compmem_t *comp_mem) {
 	for (size_t i = 0; i < nprocs; i ++) {
 		mem = (threadmem_t *) (thread_mem + mem_size * i);
 		mem->lower = comp_mem->lower + intvl * i;
+		printf ("mem->lower = %lf\n", mem->lower);
 		mem->upper = mem->lower + intvl;
 		mem->step = comp_mem->step;
 		mem->core_id = i;

@@ -1,12 +1,12 @@
 #include "server.h"
 
-#define CLIENTPORT 4901
-#define SERVERPORT 4902
+// #define CLIENTPORT 4901
+// #define SERVERPORT 4902
 
 void ServerInit (int serv_port, int ncomps, int client_port) {
 	int err;
 	int sock_connect;
-	int global_nthreads;
+	int global_nthreads = 0;
 	struct timeval timeout_accept;
 	int param = 1;		// need > 0 for setsockopt
 	int keep_cnt;
@@ -117,6 +117,7 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 		}
 
 		global_nthreads += comp_mem[i].nthreads;
+		printf ("Client %ld wants to use %d threads\n", i, comp_mem[i].nthreads);
 		comp_mem[i].ncomp = i;
 	}
 
@@ -134,8 +135,6 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 		if (err != sizeof (comp_mem[i]))
 			perror ("sendto comp_mem");
 	}
-
-	free (comp_mem);
 
 	for (size_t i = 0; i < connected_clients; i ++) {
 		printf ("client_addr = %s\n", inet_ntoa (client_addr[i].sin_addr));
