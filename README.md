@@ -81,3 +81,10 @@ Make sure, that:
 1. Client port is the same in clients and server arguements.
 2. You start server ONLY AFTER all clients are already in run.
 
+# TODO
+
+1. sendall
+
+# FIX:
+
+1. make -MMD
