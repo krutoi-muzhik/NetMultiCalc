@@ -123,7 +123,7 @@ double ClientCalc (int sock, size_t nthreads) {
 		goto client_calc_error;
 	}
 
-	printf ("ncomp = %zu \nupper = %lf \nlower = %lf \nstep = %lf\n", 
+	printf ("ncomp = %zu \nupper = %lg \nlower = %lg \nstep = %lg\n", 
 			recv_mem.ncomp, recv_mem.upper, 
 			recv_mem.lower, recv_mem.step);
 
@@ -188,7 +188,6 @@ double Calculate (compmem_t *comp_mem) {
 	for (size_t i = 0; i < nprocs; i ++) {
 		mem = (threadmem_t *) (thread_mem + mem_size * i);
 		mem->lower = comp_mem->lower + intvl * (double) i;
-		printf ("mem->lower = %lf\n", mem->lower);
 		mem->upper = mem->lower + intvl;
 		mem->step = comp_mem->step;
 		mem->core_id = i;
