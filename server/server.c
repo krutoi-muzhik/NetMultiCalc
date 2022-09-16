@@ -14,7 +14,7 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 	int keep_intvl;
 	struct sockaddr_in serv_addr;
 	int *sock_data;
-	
+	struct timeval time_begin, time_end;	
 
 	struct sockaddr_in *client_addr;
 	socklen_t client_addr_len = sizeof (struct sockaddr_in);
@@ -25,7 +25,7 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 	double current = 0.0;
 	double upper = 10.0;
 	double lower = -10.0;
-	double step = 0.000001;
+	double step = 0.0000001;
 	double intvl;
 
 	timeout_accept.tv_sec = ACCEPT_TIMEOUT_SEC;
@@ -107,6 +107,8 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 
 	printf ("%ld connected clients\n", connected_clients);
 
+	gettimeofday(&time_begin, 0);
+
 	for (size_t i = 0; i < connected_clients; i ++) {
 		int ret = recv (sock_data[i], &(comp_mem[i].nthreads), sizeof (int), 0);
 		if (ret < 0)
@@ -150,7 +152,10 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 		printf ("Sub sum %ld: %lf\n", i, res);
 	}
 
+	gettimeofday(&time_end, 0);
+
 	printf ("Resulting sum: %lf\n", sum);
+	printf ("Taken time: %.3f seconds\n", time_end.tv_sec - time_begin.tv_sec + (time_end.tv_usec - time_begin.tv_usec) / 1000000.0);
 
 error_clients:
 	for (size_t i = 0; i < connected_clients; i ++) {
