@@ -4,7 +4,44 @@ This programm calculates a definite integral, but it's aim is to make the calcul
 
 ## Server-Client communication
 
+To pass data between server and clients, clients must know the servers's address, so first of all the server starts sharing his address on a broadcast. You can see it's implementation in function Sendbroadcast in ```server/server.c```
+```C
+void SendBroadcast (int client_port, int serv_port)
+```
 
+After the client has got server's address, he starts TCP connection and sends to the server the number of threads he wants to use.
+
+After calculating the integral limits for every computer (based on their number of threads), server sends information about the integral (limits and step) to every client. Here he also starts his "stopwatch"
+
+After getting the subsums from the clients back, server counts the final sum and the ammount of time, taken to get the answer.
+
+# Client Calculation
+
+After getting the information about the task, the client starts his calculation.
+
+It uses ```nprocs()``` to get information of the max number of threads available on the machine.
+
+It uses the special struct to store information for calculating on each core.
+
+```C
+typedef struct {
+	double upper;
+	double lower;
+	double step;
+
+	double sum;
+
+	int core_id;
+	pthread_t thread_id;
+} threadmem_t;
+```
+
+We also match memory by the pagesize (64 bytes), to make different cores caches not intersect.
+
+```C
+	mem_size = (sizeof (threadmem_t) / PAGE_SZ + 1) * PAGE_SZ;
+	thread_mem = (char*) calloc (comp_mem->nthreads, mem_size);
+```
 
 # Usage 
 
