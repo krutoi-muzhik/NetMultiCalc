@@ -43,7 +43,7 @@ enum CONSTS {
 	COMPUTE_TIMEOUT_USEC = 0
 };
 
-void ServerInit (int serv_port, size_t ncomps, int client_port);
-void SendBroadcast (int client_port, int serv_port);
+void ServerInit (int serv_port, size_t ncomps);
+void SendBroadcast (int serv_port);
 
 #endif
