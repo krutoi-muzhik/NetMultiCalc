@@ -29,5 +29,6 @@ client/main.o: client/main.c client/client.h
 clean:
 	rm -f $(CLIENT_OBJS)
 	rm -f $(SERVER_OBJS)
+	rm -f cl sv
 
 -include *.d
