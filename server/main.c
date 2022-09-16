@@ -2,7 +2,7 @@
 
 
 int main (int argc, char **argv) {
-	int ncomps;
+	size_t ncomps;
 	int serv_port;
 	int client_port;
 
@@ -13,7 +13,7 @@ int main (int argc, char **argv) {
 
 	serv_port = atoi (argv[1]);
 	client_port = atoi (argv[2]);
-	ncomps = atoi (argv[3]);
+	sscanf (argv[3], "%zu", &ncomps);
 
 	if ((ncomps < 1) | (serv_port < 1)) {
 		printf ("Usage: ./server _server port_ _client port_ _num of computers_ \n");

@@ -16,6 +16,7 @@
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <pthread.h>
+#include <stdint.h>
 
 enum KEEP {
 	KEEPCNT = 3,
@@ -31,7 +32,7 @@ typedef struct {
 	double sum;
 
 	size_t ncomp;
-	int nthreads;
+	size_t nthreads;
 } compmem_t;
 
 enum CONSTS {
@@ -42,7 +43,7 @@ enum CONSTS {
 	COMPUTE_TIMEOUT_USEC = 0
 };
 
-void ServerInit (int serv_port, int ncomps, int client_port);
+void ServerInit (int serv_port, size_t ncomps, int client_port);
 void SendBroadcast (int client_port, int serv_port);
 
 #endif

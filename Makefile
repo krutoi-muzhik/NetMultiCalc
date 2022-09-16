@@ -1,5 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -MMD
+CHECK_FLAGS = -Werror -Wextra -Wnarrowing -Wstrict-prototypes -Wconversion
+CFLAGS = -Wall -MMD $(CHECK_FLAGS)
 CLIENT_LIBS = -lpthread -lm
 CLIENT_OBJS = client/main.o client/client.o
 SERVER_OBJS = server/main.o server/server.o

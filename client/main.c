@@ -2,7 +2,7 @@
 
 int main (int argc, char **argv) {
 	int port;
-	int nthreads;
+	size_t nthreads;
 
 	if (argc != 3) {
 		printf ("Usage: ./client _port_ _num of threads_ \n");
@@ -10,7 +10,7 @@ int main (int argc, char **argv) {
 	}
 
 	port = atoi (argv[1]);
-	nthreads = atoi (argv[2]);
+	sscanf (argv[2], "%zu", &nthreads);
 
 	if ((port < 1) | (nthreads < 1)) {
 		printf ("Usage: ./client _portsocket_ _num of threads_ \n");

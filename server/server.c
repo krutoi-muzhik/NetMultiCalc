@@ -1,9 +1,9 @@
 #include "server.h"
 
-void ServerInit (int serv_port, int ncomps, int client_port) {
-	int err;
+void ServerInit (int serv_port, size_t ncomps, int client_port) {
+	ssize_t err;
 	int sock_connect;
-	int global_nthreads = 0;
+	size_t global_nthreads = 0;
 	struct timeval timeout_accept;
 	int param = 1;		// need > 0 for setsockopt
 	int keep_cnt;
@@ -59,7 +59,7 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 	memset (&serv_addr, '0', sizeof (serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = htonl (INADDR_ANY);
-	serv_addr.sin_port = htons (serv_port);
+	serv_addr.sin_port = htons ((uint16_t) serv_port);
 
 	err = bind (sock_connect, (struct sockaddr *) &serv_addr, sizeof (serv_addr));
 	if (err < 0)
@@ -94,7 +94,7 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 			perror ("setsockopt sock_data SO_RCVTIMEO");
 
 		client_addr[connected_clients].sin_family = AF_INET;
-		client_addr[connected_clients].sin_port = htons (client_port);
+		client_addr[connected_clients].sin_port = htons ((uint16_t) client_port);
 	}
 
 	if (connected_clients == 0) {
@@ -107,7 +107,7 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 	gettimeofday(&time_begin, 0);
 
 	for (size_t i = 0; i < connected_clients; i ++) {
-		int ret = recv (sock_data[i], &(comp_mem[i].nthreads), sizeof (int), 0);
+		ssize_t ret = recv (sock_data[i], &(comp_mem[i].nthreads), sizeof (int), 0);
 		if (ret < 0)
 			perror ("recv nthreads");
 		if (ret != sizeof (int)) {
@@ -116,18 +116,18 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 		}
 
 		global_nthreads += comp_mem[i].nthreads;
-		printf ("Client %ld wants to use %d threads\n", i, comp_mem[i].nthreads);
+		printf ("Client %ld wants to use %ld threads\n", i, comp_mem[i].nthreads);
 		comp_mem[i].ncomp = i;
 	}
 
-	printf ("Global %d threads\n", global_nthreads);
-	intvl = (upper - lower) / global_nthreads;
+	printf ("Global %ld threads\n", global_nthreads);
+	intvl = (upper - lower) / (double) global_nthreads;
 	current = lower;
 
 	for (size_t i = 0; i < ncomps; i ++) {
 		comp_mem[i].step = step;
 		comp_mem[i].lower = current;
-		current += intvl * comp_mem[i].nthreads;
+		current += intvl * (double) comp_mem[i].nthreads;
 		comp_mem[i].upper = current;
 
 		err = sendto (sock_data[i], &comp_mem[i], sizeof (comp_mem[i]), 0, (struct sockaddr *) (&client_addr[i]), client_addr_len);
@@ -139,7 +139,7 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 		printf ("client_addr = %s\n", inet_ntoa (client_addr[i].sin_addr));
 
 		double res;
-		int ret = recv (sock_data[i], &res, sizeof (double), 0);
+		ssize_t ret = recv (sock_data[i], &res, sizeof (double), 0);
 		if (ret != sizeof (double)) {
 			printf ("Client %ld disconnected\n", i);
 			goto error_clients;
@@ -152,7 +152,7 @@ void ServerInit (int serv_port, int ncomps, int client_port) {
 	gettimeofday(&time_end, 0);
 
 	printf ("Resulting sum: %lf\n", sum);
-	printf ("Taken time: %.3f seconds\n", time_end.tv_sec - time_begin.tv_sec + (time_end.tv_usec - time_begin.tv_usec) / 1000000.0);
+	printf ("Taken time: %ld.%3ld seconds\n", time_end.tv_sec - time_begin.tv_sec, time_end.tv_usec - time_begin.tv_usec);
 
 error_clients:
 	for (size_t i = 0; i < connected_clients; i ++) {
@@ -170,7 +170,7 @@ error_serv:
 }
 
 void SendBroadcast (int client_port, int serv_port) {
-	int err;
+	ssize_t err;
 	int k = 1;
 	int bcsock = 0;
 	struct sockaddr_in bc_addr;
@@ -182,7 +182,7 @@ void SendBroadcast (int client_port, int serv_port) {
 
 	memset(&bc_addr, '0', sizeof(bc_addr));
 	bc_addr.sin_family = AF_INET;
-	bc_addr.sin_port = htons(client_port);
+	bc_addr.sin_port = htons((uint16_t) client_port);
 	bc_addr.sin_addr.s_addr = INADDR_BROADCAST;
 
 	err = setsockopt(bcsock, SOL_SOCKET, SO_BROADCAST, &k, sizeof(int));

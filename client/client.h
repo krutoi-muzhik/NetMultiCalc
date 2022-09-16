@@ -18,6 +18,7 @@
 #include <pthread.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <stdint.h>
 
 enum SIZES {
 	PAGE_SZ = 64
@@ -42,8 +43,8 @@ typedef struct {
 	double lower;
 	double step;
 
-	int ncomp;
-	int nthreads;
+	size_t ncomp;
+	size_t nthreads;
 } compmem_t;
 
 typedef struct {
@@ -53,14 +54,14 @@ typedef struct {
 
 	double sum;
 
-	int core_id;
+	size_t core_id;
 	pthread_t thread_id;
 } threadmem_t;
 
-void ClientInit (int client_port, int nthreads);
+void ClientInit (int client_port, size_t nthreads);
 void CatchBroadcast (int client_port, int *serv_port, struct sockaddr_in *addr, socklen_t *addr_len);
-int ClientTCP (int *serv_port, struct sockaddr_in *addr, int nthreads);
-double ClientCalc (int sock, int nthreads);
+int ClientTCP (int *serv_port, struct sockaddr_in *addr);
+double ClientCalc (int sock, size_t nthreads);
 void *Integral (void *data);
 double Calculate (compmem_t *comp_mem);
 double Count (double x);

@@ -1,6 +1,6 @@
 #include "client.h"
 
-void ClientInit (int client_port, int nthreads) {
+void ClientInit (int client_port, size_t nthreads) {
 	int serv_port = 0;
 	int sock_data;
 	struct sockaddr_in addr;
@@ -8,14 +8,14 @@ void ClientInit (int client_port, int nthreads) {
 	socklen_t addr_len = sizeof (addr);
 
 	CatchBroadcast (client_port, &serv_port, &addr, &addr_len);
-	sock_data = ClientTCP (&serv_port, &addr, nthreads);
+	sock_data = ClientTCP (&serv_port, &addr);
 	ClientCalc (sock_data, nthreads);
 
 	return;
 }
 
 void CatchBroadcast (int client_port, int *serv_port, struct sockaddr_in *addr, socklen_t *addr_len) {
-	int err = 0;
+	ssize_t err = 0;
 	struct sockaddr_in local_addr;
 	int bcsock;
 	int optval = 1;		// need > 0 to set socket flag
@@ -30,7 +30,7 @@ void CatchBroadcast (int client_port, int *serv_port, struct sockaddr_in *addr, 
 
 	memset (&local_addr, '0', sizeof (local_addr));
 	local_addr.sin_family = AF_INET;
-	local_addr.sin_port = htons (client_port);
+	local_addr.sin_port = htons ((uint16_t) client_port);
 	local_addr.sin_addr.s_addr = htonl (INADDR_ANY);
 
 	err = setsockopt (bcsock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof (int));
@@ -57,8 +57,8 @@ bc_error:
 }
 
 
-int ClientTCP (int *serv_port, struct sockaddr_in *addr, int nthreads) {
-	int err = 0;
+int ClientTCP (int *serv_port, struct sockaddr_in *addr) {
+	ssize_t err = 0;
 	int sock_data;
 	int keep_cnt = KEEPCNT;
 	int keep_idle = KEEPIDLE;
@@ -86,7 +86,7 @@ int ClientTCP (int *serv_port, struct sockaddr_in *addr, int nthreads) {
 
 	memset (&serv_addr, '0', sizeof (serv_addr));
 	serv_addr.sin_family = AF_INET;
-	serv_addr.sin_port = htons (*serv_port);
+	serv_addr.sin_port = htons ((uint16_t) *serv_port);
 	serv_addr.sin_addr = addr->sin_addr;
 
 	serv_addr_len = sizeof (serv_addr);
@@ -105,8 +105,8 @@ TCP_client_error:
 	exit (EXIT_FAILURE);
 }
 
-double ClientCalc (int sock, int nthreads) {
-	int err = 0;
+double ClientCalc (int sock, size_t nthreads) {
+	ssize_t err = 0;
 	compmem_t recv_mem;
 	double sum;
 
@@ -123,7 +123,7 @@ double ClientCalc (int sock, int nthreads) {
 		goto client_calc_error;
 	}
 
-	printf ("ncomp = %d \nupper = %lf \nlower = %lf \nstep = %lf\n", 
+	printf ("ncomp = %zu \nupper = %lf \nlower = %lf \nstep = %lf\n", 
 			recv_mem.ncomp, recv_mem.upper, 
 			recv_mem.lower, recv_mem.step);
 
@@ -146,7 +146,7 @@ client_calc_error:
 }
 
 void *Integral (void *data) {
-	int err;
+	ssize_t err;
 	cpu_set_t cpuset;
 	threadmem_t *mem = (threadmem_t *) data;
 
@@ -154,7 +154,7 @@ void *Integral (void *data) {
 	CPU_SET (mem->core_id, &cpuset);
 	err = pthread_setaffinity_np (mem->thread_id, sizeof (cpuset), &cpuset);
 	if (err) {
-		printf ("Error %d in core %d\n", err, mem->core_id);
+		printf ("Error %ld in core %zu\n", err, mem->core_id);
 		perror ("CPU_ALLOC");
 	}
 
@@ -167,15 +167,15 @@ void *Integral (void *data) {
 }
 
 double Calculate (compmem_t *comp_mem) {
-	int err;
-	int nprocs;
+	ssize_t err;
+	size_t nprocs;
 	char *thread_mem;
 	threadmem_t *mem;
-	int mem_size;
+	size_t mem_size;
 	double intvl;
 	double sum;
 
-	nprocs = get_nprocs ();
+	nprocs = (size_t) get_nprocs ();
 	if (comp_mem->nthreads > nprocs) 
 		comp_mem->nthreads = nprocs;
 	else
@@ -184,10 +184,10 @@ double Calculate (compmem_t *comp_mem) {
 	mem_size = (sizeof (threadmem_t) / PAGE_SZ + 1) * PAGE_SZ;
 	thread_mem = (char*) calloc (comp_mem->nthreads, mem_size);
 
-	intvl = (comp_mem->upper - comp_mem->lower) / nprocs;
+	intvl = (comp_mem->upper - comp_mem->lower) / (double) nprocs;
 	for (size_t i = 0; i < nprocs; i ++) {
 		mem = (threadmem_t *) (thread_mem + mem_size * i);
-		mem->lower = comp_mem->lower + intvl * i;
+		mem->lower = comp_mem->lower + intvl * (double) i;
 		printf ("mem->lower = %lf\n", mem->lower);
 		mem->upper = mem->lower + intvl;
 		mem->step = comp_mem->step;
