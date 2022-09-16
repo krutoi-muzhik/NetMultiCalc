@@ -1,8 +1,5 @@
 #include "server.h"
 
-// #define CLIENTPORT 4901
-// #define SERVERPORT 4902
-
 void ServerInit (int serv_port, int ncomps, int client_port) {
 	int err;
 	int sock_connect;
