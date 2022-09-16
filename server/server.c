@@ -1,6 +1,6 @@
 #include "server.h"
 
-void ServerInit (int serv_port, size_t ncomps, int client_port) {
+void ServerInit (int serv_port, size_t ncomps) {
 	ssize_t err;
 	int sock_connect;
 	size_t global_nthreads = 0;
@@ -69,7 +69,7 @@ void ServerInit (int serv_port, size_t ncomps, int client_port) {
 	if (err < 0)
 		perror ("listen");
 
-	SendBroadcast (client_port, serv_port);
+	SendBroadcast (serv_port);
 
 	sock_data = (int *) calloc (ncomps, sizeof (int));
 	client_addr = (struct sockaddr_in *) calloc (ncomps, sizeof (struct sockaddr_in));
@@ -94,7 +94,7 @@ void ServerInit (int serv_port, size_t ncomps, int client_port) {
 			perror ("setsockopt sock_data SO_RCVTIMEO");
 
 		client_addr[connected_clients].sin_family = AF_INET;
-		client_addr[connected_clients].sin_port = htons ((uint16_t) client_port);
+		client_addr[connected_clients].sin_port = htons ((uint16_t) serv_port);
 	}
 
 	if (connected_clients == 0) {
@@ -169,7 +169,7 @@ error_serv:
 	return;
 }
 
-void SendBroadcast (int client_port, int serv_port) {
+void SendBroadcast (int serv_port) {
 	ssize_t err;
 	int k = 1;
 	int bcsock = 0;
@@ -182,7 +182,7 @@ void SendBroadcast (int client_port, int serv_port) {
 
 	memset(&bc_addr, '0', sizeof(bc_addr));
 	bc_addr.sin_family = AF_INET;
-	bc_addr.sin_port = htons((uint16_t) client_port);
+	bc_addr.sin_port = htons((uint16_t) serv_port);
 	bc_addr.sin_addr.s_addr = INADDR_BROADCAST;
 
 	err = setsockopt(bcsock, SOL_SOCKET, SO_BROADCAST, &k, sizeof(int));
