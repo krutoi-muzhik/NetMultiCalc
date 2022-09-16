@@ -1,12 +1,11 @@
 #include "client.h"
 
-int main (int arhc, char **argv) {
+int main (int argc, char **argv) {
 	int port;
 	int nthreads;
-	double sum;
 
 	if (argc != 3) {
-		printf ("Usage: ./client _socket_ _num of threads_ \n");
+		printf ("Usage: ./client _port_ _num of threads_ \n");
 		exit (EXIT_FAILURE);
 	}
 
@@ -14,11 +13,12 @@ int main (int arhc, char **argv) {
 	nthreads = atoi (argv[2]);
 
 	if ((port < 1) | (nthreads < 1)) {
-		printf ("Usage: ./client _socket_ _num of threads_ \n");
+		printf ("Usage: ./client _portsocket_ _num of threads_ \n");
 		exit (EXIT_FAILURE);
 	}
 
-	ClientInit (port, nthreads);
+	while (1)
+		ClientInit (port, nthreads);
 
 	exit (EXIT_SUCCESS);
 }

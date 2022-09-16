@@ -2,20 +2,33 @@
 
 #define CLIENT_H_
 
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <netdb.h>
+#define _GNU_SOURCE
+#include <math.h>
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <pthread.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <ctype.h>
 #include <errno.h>
+#include <sys/sysinfo.h>
+#include <string.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <netinet/tcp.h>
+#include <pthread.h>
+#include <netinet/in.h>
 #include <arpa/inet.h>
 
 enum SIZES {
 	PAGE_SZ = 64
+};
+
+enum CONSTS {
+	LISTEN_BACKLOG = 100,
+	ACCEPT_TIMEOUT_SEC = 0,
+	ACCEPT_TIMEOUT_USEC = 1000,
+	COMPUTE_TIMEOUT_SEC = 10000,
+	COMPUTE_TIMEOUT_USEC = 0
 };
 
 enum KEEP {
@@ -45,7 +58,7 @@ typedef struct {
 } threadmem_t;
 
 void ClientInit (int client_port, int nthreads);
-void Broadcast (int client_port, int *serv_port, struct sockaddr_in *addr, socklen_t *addr_len);
+void CatchBroadcast (int client_port, int *serv_port, struct sockaddr_in *addr, socklen_t *addr_len);
 int ClientTCP (int *serv_port, struct sockaddr_in *addr, int nthreads);
 double ClientCalc (int sock, int nthreads);
 void *Integral (void *data);

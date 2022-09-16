@@ -1,24 +1,25 @@
 #include "server.h"
 
 int main (int argc, char **argv) {
-	int socket;
 	int ncomps;
-	double sum;
+	int serv_port;
+	int client_port;
 
-	if (argc != 3)
-		goto inval_args;
+	if (argc != 4) {
+		printf ("Usage: ./server _server port_ _client port_ _num of computers_ \n");
+		exit (EXIT_FAILURE);
+	}
 
-	port = atoi (argv[1]);
-	ncomps = atoi (argv[2]);
+	serv_port = atoi (argv[1]);
+	ncomps = atoi (argv[3]);
+	client_port = atoi (argv[2]);
 
-	if ((ncomps < 1) | (socket < 1))
-		goto inval_args;
+	if ((ncomps < 1) | (serv_port < 1)) {
+		printf ("Usage: ./server _server port_ _client port_ _num of computers_ \n");
+		exit (EXIT_FAILURE);
+	}
 
-	printf ("Result: \t%lf", sum);
+	ServerInit (serv_port, ncomps, client_port);
 
 	exit (EXIT_SUCCESS);
-
-inval_args:
-	printf ("Usage: ./server _socket_ _num of computers_ \n");
-	exit (EXIT_FAILURE);
 }
