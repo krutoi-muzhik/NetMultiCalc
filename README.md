@@ -36,7 +36,10 @@ typedef struct {
 } threadmem_t;
 ```
 
-We also match memory by the pagesize (64 bytes), to make different cores caches not intersect.
+We also match memory by the cacheline size (64 bytes), to make different cores caches not intersect.
+
+It is important, because our core's caches are cogerent, what means that, if caches of 2 threads intersect, and the data is changed in one thread, it will be automatically changed in the other one, which is rather slow.
+
 
 ```C
 	mem_size = (sizeof (threadmem_t) / PAGE_SZ + 1) * PAGE_SZ;
